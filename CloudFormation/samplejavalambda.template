@@ -1,0 +1,20 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+  "Description" : "Sample java AWS lambda cloud formation template",
+  "Resources" : {
+    "function" : {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "s3Bucket": "sample-lambda",
+          "s3Key": "java-events-1.0-SNAPSHOT.jar"
+        },
+        "FunctionName": "SimpleJavaLambda",
+        "Handler": "com.lambda.example.HandlerSQS",
+        "MemorySize": 128,
+        "Runtime": "java8",
+        "Role": "arn:aws:iam::142808979397:role/service-role/helloLambda-role-y9wfndds"
+      }
+    }
+  }
+}
