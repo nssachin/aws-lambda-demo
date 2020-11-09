@@ -1,19 +1,76 @@
 {
   "AWSTemplateFormatVersion" : "2010-09-09",
   "Description" : "Sample java AWS lambda cloud formation template",
+  "Outputs" : {
+    "LambdaRoleARN" : {
+      "Description" : "Role for Lambda execution.",
+      "Value" : {
+        "Fn::GetAtt": ["LambdaExecutionRole", "Arn"]
+      },
+      "Export" : {
+        "Name" : {
+          "Fn::Sub": "LambdaExecutionRole"
+        }
+      }
+    },
+    "LambdaFunctionName" : {
+      "Value" : {
+        "Ref" : "LambdaFunction"
+      }
+    },
+    "LambdaFunctionARN" : {
+      "Description" : "Lambda function Arn.",
+      "Value" : {
+        "Fn::GetAtt": ["LambdaFunction", "Arn"]
+      },
+      "Export" : {
+        "Name" : {
+          "Fn::Sub" : "LambdaFunction"
+        }
+      }
+    }
+  },
   "Resources" : {
-    "function" : {
+    "LambdaFunction" : {
       "Type": "AWS::Lambda::Function",
       "Properties": {
         "Code": {
-          "s3Bucket": "sample-lambda",
-          "s3Key": "java-events-1.0-SNAPSHOT.jar"
+          "S3Bucket": "sample-sns-bucket",
+          "S3Key": "java-events-1.0-SNAPSHOT.jar"
         },
         "FunctionName": "SimpleJavaLambda",
         "Handler": "com.lambda.example.HandlerSQS",
         "MemorySize": 128,
+        "Timeout": 15,
         "Runtime": "java8",
-        "Role": "arn:aws:iam::142808979397:role/service-role/helloLambda-role-y9wfndds"
+        "Role": {
+          "Fn::GetAtt": ["LambdaExecutionRole", "Arn"]
+        }
+      }
+    },
+    "LambdaExecutionRole" : {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "RoleName": "lambda-role",
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "sts:AssumeRole"
+              ],
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "lambda.amazonaws.com"
+                ]
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "ManagedPolicyArns": [
+          "arn:aws:iam::aws:policy/service-role/AWSLambdaSQSQueueExecutionRole"
+        ]
       }
     }
   }
